@@ -60,7 +60,7 @@ class Pedido(db.Model):
 
 class PedidoSchema(ma.Schema):
     class Meta:
-        fields = ("id", "user_id", "colection_id", "material_id")
+        fields = ("id", "user_id", "colection_id", "espacio_id")
 
 
 # USER
@@ -119,17 +119,12 @@ def login():
 @app.route("/espacios", methods=["PUT"])
 @token_required
 def get_spaces():
-    days = request.json["days"]
+    start_date = datetime.datetime.now().strftime("%Y-%m-%d")
     end_date = datetime.datetime.strptime(request.json["end_date"], "%Y-%m-%d").date()
     # busco los espacios que contengan la fecha requerida
-    spaces_db = Espacio.query.filter(
-        Espacio.end_date >= end_date, Espacio.start_date < end_date
+    spaces = Espacio.query.filter(
+        Espacio.end_date <= end_date, Espacio.start_date > start_date
     ).all()
-    spaces = []
-    # filtro por la cantidad de dias
-    for space in spaces_db:
-        if (end_date - space.start_date).days >= days:
-            spaces.append(space)
     return jsonify(EspacioSchema(many=True).dump(spaces))
 
 
