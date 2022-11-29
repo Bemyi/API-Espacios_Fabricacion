@@ -123,7 +123,7 @@ def get_spaces():
     end_date = datetime.datetime.strptime(request.json["end_date"], "%Y-%m-%d").date()
     # busco los espacios que contengan la fecha requerida
     spaces = Espacio.query.filter(
-        Espacio.end_date <= end_date, Espacio.start_date > start_date
+        Espacio.end_date <= end_date, Espacio.start_date > start_date, Espacio.reserved == 0
     ).all()
     return jsonify(EspacioSchema(many=True).dump(spaces))
 
