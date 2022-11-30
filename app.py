@@ -48,19 +48,23 @@ class EspacioSchema(ma.Schema):
 # PEDIDO
 class Pedido(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    user_id = db.Column(db.Integer)
     colection_id = db.Column(db.Integer)
     espacio_id = db.Column(db.Integer, db.ForeignKey("espacio.id"))
+    start_date = db.Column(db.Date)
+    end_date = db.Column(db.Date)
 
-    def __init__(self, user_id, colection_id, espacio_id):
+    def __init__(self, user_id, colection_id, espacio_id, start_date, end_date):
         self.user_id = user_id
         self.colection_id = colection_id
         self.espacio_id = espacio_id
+        self.start_date = start_date
+        self.end_date = end_date
 
 
 class PedidoSchema(ma.Schema):
     class Meta:
-        fields = ("id", "user_id", "colection_id", "espacio_id")
+        fields = ("id", "user_id", "colection_id", "espacio_id", "start_date", "end_date")
 
 
 # USER
@@ -137,7 +141,7 @@ def reserve_space():
     colection_id = request.json["colection_id"]
     space = Espacio.query.get(space_id)
     space.editar(1)
-    pedido = Pedido(user_id, colection_id, space_id)
+    pedido = Pedido(user_id, colection_id, space_id, space.start_date, space.end_date)
     db.session.add(pedido)
     db.session.commit()
     return jsonify(PedidoSchema(many=False).dump(pedido))
